@@ -1,0 +1,11 @@
+REPOSITORY                 TAG       IMAGE ID       CREATED              SIZE
+saaverdo/ubuntu-tmp-file   latest    6ad7106b9f83   About a minute ago   63.1MB
+ubuntu                     18.04     ad080923604a   12 days ago          63.1MB
+nginx                      latest    0e901e68141f   3 weeks ago          142MB
+docker-python              latest    9d4199eaa92a   4 months ago         917MB
+hello-world                latest    feb5d9fea6a5   8 months ago         13.3kB
+docker/whalesay            latest    6b362a9f73eb   7 years ago          247MB
+
+
+Образ - сущность, на основе которой создаётся и запускается контейнер.
+Можно привести такую аналогию из ООП: образ подобен классу, а контейнер - объект, созданный на основе данного класса.

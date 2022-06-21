@@ -1,0 +1,88 @@
+[
+    {
+        "Id": "sha256:6ad7106b9f83bcb81bd71158d0abe8ef36d2510dc50583335de8076bf618a64b",
+        "RepoTags": [
+            "saaverdo/ubuntu-tmp-file:latest"
+        ],
+        "RepoDigests": [],
+        "Parent": "sha256:ad080923604aa54962e903125cd9a860605c111bc45afc7d491cd8c77dccc13b",
+        "Comment": "",
+        "Created": "2022-06-19T19:46:55.8619797Z",
+        "Container": "a45dfc3ff46646709f89bdb0ff25c0a0043775ca7ed8f9339f1e39d8caeb922f",
+        "ContainerConfig": {
+            "Hostname": "a45dfc3ff466",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "bash"
+            ],
+            "Image": "ubuntu:18.04",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "desktop.docker.io/wsl-distro": "Ubuntu"
+            }
+        },
+        "DockerVersion": "20.10.10",
+        "Author": "",
+        "Config": {
+            "Hostname": "a45dfc3ff466",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "bash"
+            ],
+            "Image": "ubuntu:18.04",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "desktop.docker.io/wsl-distro": "Ubuntu"
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 63149635,
+        "VirtualSize": 63149635,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/72a568463260fc62c31d817f5b6d62a48831649e4e55daec41f912b49840857b/diff",
+                "MergedDir": "/var/lib/docker/overlay2/0a620e50268055b703e284cde528a2df43cf00deee057d88f9159981011d8b01/merged",
+                "UpperDir": "/var/lib/docker/overlay2/0a620e50268055b703e284cde528a2df43cf00deee057d88f9159981011d8b01/diff",
+                "WorkDir": "/var/lib/docker/overlay2/0a620e50268055b703e284cde528a2df43cf00deee057d88f9159981011d8b01/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:95129a5fe07e89c1898dc40a027b291d5fe33a67b35a88f0f0eaf51ea691f0b5",
+                "sha256:e37e1cc043e227c6342727544ed1a16ce257efe6b3e6efe92b332652fd86b7d9"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2022-06-19T19:46:55.8921156Z"
+        }
+    }
+]
