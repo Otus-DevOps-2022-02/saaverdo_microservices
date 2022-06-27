@@ -9,46 +9,96 @@ saaverdo microservices repository
 Docker при инициализации контейнера может подключить к нему только 1
 сеть.
 Дополнительные сети подключаются командой:
+
 > docker network connect <network> <container>
 
 При запуске создаваемые docker-compose контейнеры получают имя в формате <имя проекта>_<имя контейнера>_<инкремент>
 По-умолчанию в качестве <имя проекта> берётся имя директории.
 
-> $ docker ps
-> CONTAINER ID   IMAGE                  COMMAND                   CREATED              STATUS          PORTS                    NAMES
-> 281bb5b42aab   saaverdo/post:1.0      "python3 post_app.py"    About a  minute ago   Up 42 seconds                            src_post_1
-> 4d9e02a9d1ae   mongo:3.2              "docker-entrypoint.s…"   About a  minute ago   Up 42 seconds   27017/tcp                src_post_db_1
-> c70f4b4cb2ed   saaverdo/comment:1.0   "puma"                   About a  minute ago   Up 41 seconds                            src_comment_1
-> 417a3646e95e   saaverdo/ui:1.0        "puma"                   About a  minute ago   Up 41 seconds   0.0.0.0:9292->9292/tcp   src_ui_1
-
+```
+$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                   CREATED              STATUS          PORTS                    NAMES
+281bb5b42aab   saaverdo/post:1.0      "python3 post_app.py"    About a  minute ago   Up 42 seconds                            src_post_1
+4d9e02a9d1ae   mongo:3.2              "docker-entrypoint.s…"   About a  minute ago   Up 42 seconds   27017/tcp                src_post_db_1
+c70f4b4cb2ed   saaverdo/comment:1.0   "puma"                   About a  minute ago   Up 41 seconds                            src_comment_1
+417a3646e95e   saaverdo/ui:1.0        "puma"                   About a  minute ago   Up 41 seconds   0.0.0.0:9292->9292/tcp   src_ui_1
+```
 
 Изменить его можно:
 задав переменную окружения `COMPOSE_PROJECT_NAME` в файле `.env` либо экспортировав её
 
-> $ export COMPOSE_PROJECT_NAME=shmuzik
-> $ docker-compose up -d
-> $ docker ps
-> CONTAINER ID   IMAGE                  COMMAND                   CREATED          STATUS          PORTS                    NAMES
-> 453045206cc4   mongo:3.2              "docker-entrypoint.s…"   54  seconds ago   Up 49 seconds   27017/tcp                shmuzik_post_db_1
-> 1b0e37821d1f   saaverdo/comment:1.0   "puma"                   54  seconds ago   Up 50 seconds                            shmuzik_comment_1
-> fdc1a8613e4e   saaverdo/post:1.0      "python3 post_app.py"    54  seconds ago   Up 50 seconds                            shmuzik_post_1
-> bbf79f250990   saaverdo/ui:1.0        "puma"                   54  seconds ago   Up 49 seconds   0.0.0.0:9292->9292/tcp   shmuzik_ui_1
+```
+$ export COMPOSE_PROJECT_NAME=shmuzik
+$ docker-compose up -d
+$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                   CREATED          STATUS          PORTS                    NAMES
+453045206cc4   mongo:3.2              "docker-entrypoint.s…"   54  seconds ago   Up 49 seconds   27017/tcp                shmuzik_post_db_1
+1b0e37821d1f   saaverdo/comment:1.0   "puma"                   54  seconds ago   Up 50 seconds                            shmuzik_comment_1
+fdc1a8613e4e   saaverdo/post:1.0      "python3 post_app.py"    54  seconds ago   Up 50 seconds                            shmuzik_post_1
+bbf79f250990   saaverdo/ui:1.0        "puma"                   54  seconds ago   Up 49 seconds   0.0.0.0:9292->9292/tcp   shmuzik_ui_1
+```
 
 указав его в строке запуска через ключ `-p`
 
-> $ docker-compose -p tuzik up -d
-> $ docker ps
-> CONTAINER ID   IMAGE                  COMMAND                   CREATED          STATUS          PORTS                    NAMES
-> 9597baea0b53   mongo:3.2              "docker-entrypoint.s…"   21  minutes ago   Up 21 minutes   27017/tcp                tuzik_post_db_1
-> 95c2eb7cd78f   saaverdo/post:1.0      "python3 post_app.py"    21  minutes ago   Up 21 minutes                            tuzik_post_1
-> ded8cc33b8d0   saaverdo/comment:1.0   "puma"                   21  minutes ago   Up 21 minutes                            tuzik_comment_1
-> d3f8e8e6c178   saaverdo/ui:1.0        "puma"                   21  minutes ago   Up 21 minutes   0.0.0.0:9292->9292/tcp   tuzik_ui_1
+```
+$ docker-compose -p tuzik up -d
+$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                   CREATED          STATUS          PORTS                    NAMES
+9597baea0b53   mongo:3.2              "docker-entrypoint.s…"   21  minutes ago   Up 21 minutes   27017/tcp                tuzik_post_db_1
+95c2eb7cd78f   saaverdo/post:1.0      "python3 post_app.py"    21  minutes ago   Up 21 minutes                            tuzik_post_1
+ded8cc33b8d0   saaverdo/comment:1.0   "puma"                   21  minutes ago   Up 21 minutes                            tuzik_comment_1
+d3f8e8e6c178   saaverdo/ui:1.0        "puma"                   21  minutes ago   Up 21 minutes   0.0.0.0:9292->9292/tcp   tuzik_ui_1
+```
+
+Кроме того, имя контейнера можно задать директивой `container_name:` - оно в результате будет без префиксов и суффиксов.
+
+### Bonus level!
+
+Задача:
+Создайте docker-compose.override.yml для reddit проекта, который позволит:
+1 - изменять код каждого из приложений, не выполняя сборку образа
+2 - изменять код каждого из приложений, не выполняя сборку образа
+
+#### I
+Для этой задачи мы укажем монтировать директорию с файлами сервиса в директорию `/app/` внутри контейнера.
+
+```
+  ui:
+    build: ./ui
+    image: ${USERNAME}/ui:${UI_VER}
+    volumes:
+      - ./ui:/app/
+```
+теперь, если мы добавим, к примеру, строку `# test line` в файл `post_app.py` и запустим наш проект, то эта строка появится в данном файле внутри контейнера `post`
+
+
+#### II
+
+Чтобы переопределить команду запуска контейнера добавим пункт `command:` и укажем новую строку запуска: `["puma", "--debug", "-w", "2"]`
+
+```
+  ui:
+    build: ./ui
+    image: ${USERNAME}/ui:${UI_VER}
+    volumes:
+      - ./ui:/app/
+    command: ["puma", "--debug", "-w", "2"]
+    ports:
+      - ${UI_PORT}:9292/tcp
+    networks:
+      - front_net
+```
+
 
 
 
 #### Links 2-3-4
 
 https://superuser.com/questions/1269159/how-to-override-docker-compose-project-name-and-network-name
+
+https://habr.com/ru/post/454552/
+https://www.wake-up-neo.com/ru/docker-compose/kak-peredat-argumenty-v-tochku-vhoda-v-docker-compose.yml/826203749/
+https://habr.com/ru/company/southbridge/blog/329138/
 
 
 ## Task 14 Docker - 3
