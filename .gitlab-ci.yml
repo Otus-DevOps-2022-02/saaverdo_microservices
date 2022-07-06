@@ -14,11 +14,19 @@ before_script:
 - cd reddit
 - bundle install
 
-
 build_job:
   stage: build
   script:
     - echo 'Building'
+
+deploy_job:
+  stage: build
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.otus.bsv.pp.ua
+  only:
+    - branches
 
 test_unit_job:
   stage: test
@@ -38,7 +46,7 @@ deploy_dev_job:
     - echo 'Deploy'
   environment:
     name: dev
-    url: http://dev.example.com
+    url: http://dev.otus.pp.ua
 
 branch review:
   stage: review
@@ -61,7 +69,7 @@ staging:
     - echo 'Deploy'
   environment:
     name: beta
-    url: http://beta.example.com
+    url: http://beta.otus.pp.ua
 
 production:
   stage: production
@@ -70,4 +78,4 @@ production:
     - echo 'Deploy'
   environment:
     name: production
-    url: http://example.com
+    url: http://otus.pp.ua
