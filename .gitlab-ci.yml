@@ -55,7 +55,7 @@ branch review:
   script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
   environment:
     name: branch/$CI_COMMIT_REF_NAME
-    url: http://$CI_ENVIRONMENT_SLUG.example.com
+    url: http://$CI_ENVIRONMENT_SLUG.otus.bsv.pp.ua
     auto_stop_in: 20 minutes
   only:
     - branches
@@ -72,7 +72,7 @@ staging:
     - echo 'Deploy'
   environment:
     name: beta
-    url: http://beta.otus.pp.ua
+    url: http://beta.otus.bsv.pp.ua
     auto_stop_in: 1 hour
 
 production:
@@ -82,5 +82,5 @@ production:
     - echo 'Deploy'
   environment:
     name: production
-    url: http://otus.pp.ua
+    url: http://otus.bsv.pp.ua
     auto_stop_in: 1 hour
