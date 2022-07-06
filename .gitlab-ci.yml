@@ -21,10 +21,12 @@ build_job:
 
 deploy_job:
   stage: build
+  image: ruby:2.4.2
   script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
   environment:
     name: branch/$CI_COMMIT_REF_NAME
     url: http://$CI_ENVIRONMENT_SLUG.otus.bsv.pp.ua
+    auto_stop_in: 20 minutes
   only:
     - branches
 
@@ -54,6 +56,7 @@ branch review:
   environment:
     name: branch/$CI_COMMIT_REF_NAME
     url: http://$CI_ENVIRONMENT_SLUG.example.com
+    auto_stop_in: 20 minutes
   only:
     - branches
   except:
@@ -70,6 +73,7 @@ staging:
   environment:
     name: beta
     url: http://beta.otus.pp.ua
+    auto_stop_in: 1 hour
 
 production:
   stage: production
@@ -79,3 +83,4 @@ production:
   environment:
     name: production
     url: http://otus.pp.ua
+    auto_stop_in: 1 hour
