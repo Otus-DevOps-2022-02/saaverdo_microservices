@@ -7,12 +7,19 @@ saaverdo microservices repository
 ## Task 16 Gitlab CI
 
 Создание окружения для задания реализуем через `terraform` а установку `docker'а` - посредством `ansible`
-Необходимые для этого скрипты и роли разместим в директории `gitlab-ci`.
+Необходимые для этого скрипты и плейбуки разместим в директории `gitlab-ci`.
+
+```
+terraform apply
+
+cd ../ansible
+ansible-playbook playbooks/docker.yml -i environments/gitlsb/inventory
+```
 
 Когда ВМ готова, запустим контейнер с Gitlab с помощью файла `gitlab-ci/docker-compose.yml`
 
 ```
-docker-compose up -d
+ansible-playbook playbooks/gitlab-omni.yml -i environments/gitlsb/inventory
 ```
 
 Добавляем раннер - запустим контейнер на том же хосте:
@@ -21,9 +28,6 @@ docker-compose up -d
 docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock
 gitlab/gitlab-runner:latest
 ```
-
-Для дальнейшего удобства для этой цели будем использовать файл `docker-compose-gitlab_runner.yml`
-
 
 И регистрируем его а Gitlab, подставив свои IP и токен
 
@@ -40,6 +44,11 @@ docker exec -it gitlab-runner gitlab-runner register \
  --run-untagged
  ```
 
+Для удобства эти действия опишем в плейбуке `gitlab-runner.yml` который скопирует на хост `docker-compose` файл для раннера, запустит его и зарегистрирует
+
+```
+ansible-playbook playbooks/gitlab-runner.yml -i environments/gitlsb/inventory
+```
 
 
 ## Task 15 Docker - 4
