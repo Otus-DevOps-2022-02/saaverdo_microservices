@@ -1,0 +1,6 @@
+---
+- name: Deploy docker
+  hosts: gitlab
+  become: true
+  roles:
+    - docker
