@@ -1,0 +1,37 @@
+---
+- name: Deploy gitlab runner
+  hosts: gitlab
+  become: true
+  vars:
+    GITLAB_IP: "{{ ansible_host }}"
+    GITLAB_REG_TOKEN: ukqtwfdqukwtd
+
+  tasks:
+    - name: Create dir for gitlab
+      file:
+        path: /srv/runner
+        state: directory
+
+    - name: copy template to docker-host
+      copy:
+        src: templates/gitlab_runner.yml
+        dest: /srv/runner/docker-compose.yml
+
+    - name: start docker-compose for gitlab
+        community.docker.docker_compose:
+          project_src: /srv/runner
+
+    - name: register runner in gitlab
+      shell: |
+        docker exec -it gitlab-runner gitlab-runner register \
+        --url http://{{ GITLAB_IP }}/ \
+        --non-interactive \
+        --locked=false \
+        --name DockerRunner \
+        --executor docker \
+        --docker-image alpine:latest \
+        --registration-token {{ GITLAB_REG_TOKEN }} \
+        --tag-list "linux,xenial,ubuntu,docker" \
+        --run-untagged
+      tags:
+        - reister
