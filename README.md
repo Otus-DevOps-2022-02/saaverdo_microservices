@@ -4,6 +4,75 @@
 # saaverdo_microservices
 saaverdo microservices repository
 
+
+## Task 17 Monitoring. Prometheus
+
+Соберём свой образ, включив в него конфигурационный файл:
+
+```
+01:20 $ cat monitoring/prometheus/Dockerfile
+FROM prom/prometheus:v2.1.0
+ADD prometheus.yml /etc/prometheus/
+```
+
+Также соберём образы микросервисов:
+
+```
+export USER_NAME=saaverdo
+for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
+```
+
+И запушим их на docker hub:
+
+```
+docker tag saaverdo/comment saaverdo/comment:1.0
+docker tag saaverdo/post saaverdo/post:1.0
+docker tag saaverdo/ui saaverdo/ui:1.0
+docker push saaverdo/ui:1.0
+docker push saaverdo/post:1.0
+docker push saaverdo/comment:1.0
+docker push saaverdo/prometheus
+```
+
+#### * mongodb exporter
+
+Для мониторинга mongoDB воспользуемся экспортером percona/mongodb_exporter
+Они предлагают запускать его командой:
+
+```
+docker run -d -p 9216:9216 -p 17001:17001 percona/mongodb_exporter:0.20 --mongodb.uri=mongodb://127.0.0.1:17001
+```
+
+но мы добавим в `docker-conmpose.yml` необходимый фрагмент:
+
+```
+  mongo-exporter:
+    image: percona/mongodb_exporter:0.20
+    ports:
+        - '9216:9216'
+        - '17001:17001'
+    environment:
+      - MONGODB_URI=mongodb://post_db:27017
+    networks:
+      - back_net
+```
+
+И в конфигурацию prometheus'а:
+
+```
+  - job_name: 'mongo'
+    static_configs:
+      - targets:
+        - 'mongo-exporter:9216'
+```
+
+
+#### Links 2-3-4  Kann man Herzen brechen?
+
+mongo exporter от перконы
+https://github.com/percona/mongodb_exporter
+
+
 ## Task 16 Gitlab CI
 
 Создание окружения для задания реализуем через `terraform` а установку `docker'а` - посредством `ansible`
