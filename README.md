@@ -106,6 +106,7 @@ Let's go deeper... Добавим ещё немного `grok`'а:
 Момент моих ошибок - во фрагменте ` method= GET` не упустить пробел!
 В итоге получаем такой фильтр:
 
+```
 <filter service.ui>
   @type parser
   <parse>
@@ -114,6 +115,7 @@ Let's go deeper... Добавим ещё немного `grok`'а:
   </parse>
   key_name log
 </filter>
+```
 
 ###  * Zipkin
 Напомним нашему firewall'у, что Zipkin UI работает на порту 9411.
