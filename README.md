@@ -145,18 +145,18 @@ Let's go deeper... Добавим ещё немного `grok`'а:
 
 
 #### Links
-
-https://stackoverflow.com/questions/71120621/efk-system-is-build-on-docker-but-fluentd-cant-start-up
-https://stackoverflow.com/questions/51133077/how-can-i-debug-why-fluentd-is-not-sending-data-to-elasticsearch
-https://dou.ua/lenta/articles/logging-via-efk/
-https://docs.fluentd.org/configuration/buffer-section
-https://habr.com/ru/company/selectel/blog/250969/
-https://habr.com/ru/company/nixys/blog/510702/
-https://www.elastic.co/guide/en/kibana/7.4/kuery-query.html
-https://habr.com/ru/post/509632/
-https://logz.io/blog/logstash-grok/
-https://grokdebug.herokuapp.com/
-https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
+------
+- https://stackoverflow.com/questions/71120621/efk-system-is-build-on-docker-but-fluentd-cant-start-up
+- https://stackoverflow.com/questions/51133077/how-can-i-debug-why-fluentd-is-not-sending-data-to-elasticsearch
+- https://dou.ua/lenta/articles/logging-via-efk/
+- https://docs.fluentd.org/configuration/buffer-section
+- https://habr.com/ru/company/selectel/blog/250969/
+- https://habr.com/ru/company/nixys/blog/510702/
+- https://www.elastic.co/guide/en/kibana/7.4/kuery-query.html
+- https://habr.com/ru/post/509632/
+- https://logz.io/blog/logstash-grok/
+- https://grokdebug.herokuapp.com/
+- https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
 
 
 ## Task 17 Monitoring. Prometheus
