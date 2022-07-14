@@ -5,6 +5,160 @@
 saaverdo microservices repository
 
 
+## Task 18 Logging.
+
+Вместо `logstash` будем использовать `fluentd`
+Создадим compose-файл docker/docker-compose-logging.yml который будет запускать весь наш стек логирования.
+А в `logging/fluentd` создадим `Dockerfile` для нашего образа и `fluent.conf` с конфигурацией `fluentd`.
+Запустив всё, что нам требовалось, не забываем открыть порт (`kibana` - 5601) на файрволле облака.
+Для создания индекса пройдём в `Discover` -> `Kibana`/`Index Patterns` -> `Create Index pattern`
+
+Ага, щаааз...
+
+в примере ДЗ fluentd сломанный. Он сообщения от `post` принимает, а дальше - молчок.
+
+Смотрим на более новую версию плагина - https://rubygems.org/gems/fluent-plugin-elasticsearch/versions/5.1.5
+смотрим пример сборки докера - https://github.com/fluent/fluentd-docker-image
+и находим то, что нам поможет - https://stackoverflow.com/questions/71120621/efk-system-is-build-on-docker-but-fluentd-cant-start-up
+
+Интересный момент: для установки нам понадобится `sudo`, а для установки `sudo` нужено `USER root`, и впоследствии вернуть на `USER fluent`
+
+Кроме того, в конфигурации `fluentd` параметр `flush_interval` должен быть в секции `<buffer>`, а ни как ни в `<store>`.
+Исправим это, невозбранно стащив кусок конфы из статьи https://dou.ua/lenta/articles/logging-via-efk/
+
+
+Вот теперь...
+#### Создадим индексы
+
+Для создания индекса пройдём в `Discover` -> `Kibana`/`Index Patterns` -> `Create Index pattern`
+
+В `Index Pattern` добавляем индекс (точнее - шаблон) `fluentd-*`, выбираем поле `@timestamp` -> и нажимаем `Create Index pattern`
+
+Для фильтрации логов добавим в когфигурацию `fluentd` такой фрагмент:
+
+```
+<filter service.post>
+ @type parser
+ format json
+ key_name log
+</filter>
+```
+
+Неплохо, теперь в логах есть конкретные поля.
+
+Также добавим фильтр с регулярками для неструктурированных логов (от `ui`)
+
+```
+<filter service.ui>
+  @type parser
+  format /\[(?<time>[^\]]*)\]  (?<level>\S+) (?<user>\S+)[\W]*service=(?<service>\S+)[\W]*event=(?<event>\S+)[\W]*(?:path=(?<path>\S+)[\W]*)?request_id=(?<request_id>\S+)[\W]*(?:remote_addr=(?<remote_addr>\S+)[\W]*)?(?:method= (?<method>\S+)[\W]*)?(?:response_status=(?<response_status>\S+)[\W]*)?(?:message='(?<message>[^\']*)[\W]*)?/
+  key_name log
+</filter>
+```
+
+Жуть, правда?
+Уберём этот ужас ~~с наших глаз~~из конфигов, и заменим на `grok`
+
+```
+<filter service.ui>
+ @type parser
+ format grok
+ grok_pattern %{RUBY_LOGGER}
+ key_name log
+</filter>
+```
+
+только у нас это не заработаеть (
+должно быть так:
+
+```
+<filter service.ui>
+  @type parser # задаём тип фильтра и двлее укажем его параметры в секции |
+  <parse>                                                                <-
+    @type grok
+    grok_pattern %{RUBY_LOGGER}                                                                      <-<-
+  </parse>                                                                                               \
+  key_name log # -> !!! вот это поле  и разбирается по шаблону, заданному в секции <parse> - grok_pattern |
+</filter>
+```
+
+
+Let's go deeper... Добавим ещё немного `grok`'а:
+
+```
+<filter service.ui>
+  @type parser
+  <parse>
+    @type grok
+    grok_pattern service=%{WORD:service} \| event=%{WORD:event} \| request_id=%{GREEDYDATA:request_id} \| message='%{GREEDYDATA:message}'
+  </parse>
+  key_name message
+  reserve_data true
+</filter>
+```
+
+#### * - разбор строки ещё одного вида:
+
+Вышеобозначенные фильтры не ловят такую строку:
+`service=ui | event=request | path=/new | request_id=b293fba0-c957-4b4e-9571-702446084f35 | remote_addr=134.249.151.192 | method= GET | response_status=200`
+
+Займёмся этим. тут нам поможет https://grokdebug.herokuapp.com/
+Момент моих ошибок - во фрагменте ` method= GET` не упустить пробел!
+В итоге получаем такой фильтр:
+
+<filter service.ui>
+  @type parser
+  <parse>
+    @type grok
+    grok_pattern service=%{WORD:service} \| event=%{WORD:event} \| path=%{GREEDYDATA:path} \| request_id=%{GREEDYDATA:request_id} \| remote_addr=%{IPV4:remote_ip} \| method= %{WORD:http_method} \| response_status=%{INT:response_code}
+  </parse>
+  key_name log
+</filter>
+
+###  * Zipkin
+Напомним нашему firewall'у, что Zipkin UI работает на порту 9411.
+Пересобираем контейнеры с багом, и дадим им - `bug`
+Чтобы приложение заработало, в `docker-compose-bug.yml` добавим пропущенные в `Dockerfile`'ах переменные окружения.
+
+Проблема:
+
+```
+С нашим приложением происходит что-то странное. Пользователи
+жалуются, что при нажатии на пост они вынуждены долго ждать, пока у них
+загрузится страница с постом. Жалоб на загрузку других страниц не
+поступало.
+```
+
+Смотрим в `Zipkin` и видим такую картину:
+
+Открытие поста здорового ~~человека~~приложения:
+
+![Схема стенда](img/logging-ok.png)
+
+И открытие поста ~~курильщика~~приложения с багом:
+
+![Схема стенда](img/logging-nok.png)
+
+Если раньше `ui_app` дёргал сервис `post` и тот выполнял запрос за `10.677 ms`, то теперь `post` задумывается на `3.029 s` из которых вызов `db_find_all_hosts` занимает  `3.0007 s`.
+
+
+
+
+#### Links
+
+https://stackoverflow.com/questions/71120621/efk-system-is-build-on-docker-but-fluentd-cant-start-up
+https://stackoverflow.com/questions/51133077/how-can-i-debug-why-fluentd-is-not-sending-data-to-elasticsearch
+https://dou.ua/lenta/articles/logging-via-efk/
+https://docs.fluentd.org/configuration/buffer-section
+https://habr.com/ru/company/selectel/blog/250969/
+https://habr.com/ru/company/nixys/blog/510702/
+https://www.elastic.co/guide/en/kibana/7.4/kuery-query.html
+https://habr.com/ru/post/509632/
+https://logz.io/blog/logstash-grok/
+https://grokdebug.herokuapp.com/
+https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
+
+
 ## Task 17 Monitoring. Prometheus
 
 Соберём свой образ, включив в него конфигурационный файл:
@@ -405,3 +559,8 @@ NB - для деактивации окружения:
 gcloud compute instances list
 
 gcloud compute images list | grep ubuntu
+
+gcloud compute firewall-rules list
+
+gcloud compute firewall-rules create "prometeus-ui" --allow=tcp:9090 --source-ranges="0.0.0.0/0" --direction=INGRESS --description="Prometeus UI access"
+gcloud compute firewall-rules delete "prometeus-ui"
