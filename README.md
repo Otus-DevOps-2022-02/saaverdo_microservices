@@ -222,9 +222,9 @@ docker run -d -p 9216:9216 -p 17001:17001 percona/mongodb_exporter:0.20 --mongod
 
 
 #### Links 2-3-4  Kann man Herzen brechen?
-
+------
 mongo exporter от перконы
-https://github.com/percona/mongodb_exporter
+- https://github.com/percona/mongodb_exporter
 
 
 ## Task 16 Gitlab CI
@@ -363,12 +363,12 @@ d3f8e8e6c178   saaverdo/ui:1.0        "puma"                   21  minutes ago  
 
 
 #### Links 2-3-4
+------
+- https://superuser.com/questions/1269159/how-to-override-docker-compose-project-name-and-network-name
 
-https://superuser.com/questions/1269159/how-to-override-docker-compose-project-name-and-network-name
-
-https://habr.com/ru/post/454552/
-https://www.wake-up-neo.com/ru/docker-compose/kak-peredat-argumenty-v-tochku-vhoda-v-docker-compose.yml/826203749/
-https://habr.com/ru/company/southbridge/blog/329138/
+- https://habr.com/ru/post/454552/
+- https://www.wake-up-neo.com/ru/docker-compose/kak-peredat-argumenty-v-tochku-vhoda-v-docker-compose.yml/826203749/
+- https://habr.com/ru/company/southbridge/blog/329138/
 
 
 ## Task 14 Docker - 3
