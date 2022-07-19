@@ -13,11 +13,22 @@ services:
       - ${UI_PORT}:9292/tcp
     networks:
       - back_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
+
   post:
     #build: ../src/post-py
     image: ${USERNAME}/post:${POST_PY_VER}
     networks:
       - back_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
 
   comment:
     #build: ../src/comment
