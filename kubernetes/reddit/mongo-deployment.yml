@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post-db
+  template:
+    metadata:
+      name: post-db
+      labels:
+        app: post-db
+    spec:
+      containers:
+      - image: mongo:3.2
+        name: post-db
