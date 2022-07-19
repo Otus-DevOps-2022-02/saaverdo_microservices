@@ -5,6 +5,57 @@
 saaverdo microservices repository
 
 
+## Task 19 Kubernetes - 1.
+
+В директории `terraform` подготовлен скрипт `main.tf` который разворачивает два хоста для задания - `k2-master` и `k8-worker`
+Далее, в директории `ansible` подготовлены плейбуки для настройки данных хостов:
+- выполняется установка `docker`
+- выполняется установка `kubeadm` `kubelet` `kubectl`
+- выполняется инициализация master-ноды
+- выполняется иниуиализация worker-ноды
+
+Для удобства вызов плейбук объединён в файле `deploy_kube.yml`
+
+```
+ansible-playbook playbooks/deploy_kube.yml -i inventory
+```
+
+После этого деплой подготовленных манифестов выполняется командой:
+
+```
+ansible-playbook playbooks/deploy_manifest.yml -i inventory
+```
+
+---
+мои косяки:
+
+!!!! FIREWALLLL 6443 !!!!
+Именно из-за этого установка падала с ошибкой
+gcloud compute firewall-rules create "kubeapi" --allow=tcp:6443 --source-ranges="0.0.0.0/." --direction=INGRESS --description="k8s API"
+
+
+
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+
+ надо:
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+смотрим на ссылке Install Calico - Manifest а не оператор
+
+и снова облом - будет ошибка
+error: unable to recognize "calico.yaml": no matches for kind "PodDisruptionBudget" in version "policy/v1"
+
+нужна более старая версия calico
+
+curl https://projectcalico.docs.tigera.io/v3.19/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
+
+Вот теперь ноды - READY !
+
+
 ## Task 18 Logging.
 
 Вместо `logstash` будем использовать `fluentd`

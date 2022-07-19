@@ -1,0 +1,21 @@
+---
+- hosts: master
+  #become: no
+  gather_facts: false
+  vars:
+    manifest_files:
+      - comment-deployment.yml
+      - mongo-deployment.yml
+      - post-deployment.yml
+      - ui-deployment.yml
+
+  tasks:
+    - name: Copy manifest
+      copy:
+        src: "../../reddit/{{ item }}"
+        dest: "$HOME/{{ item }}"
+      loop: "{{ manifest_files }}"
+
+    - name: Apply manifest
+      shell: "kubectl apply -f $HOME/{{ item }}"
+      loop: "{{ manifest_files }}"

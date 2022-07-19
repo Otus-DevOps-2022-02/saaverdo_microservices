@@ -1,0 +1,5 @@
+---
+- import_playbook: install_docker.yml
+- import_playbook: install-kube.yml
+- import_playbook: init_master.yml
+- import_playbook: init_worker.yml

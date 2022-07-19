@@ -1,0 +1,43 @@
+---
+- hosts: master
+  become: yes
+  vars:
+    master_external_ip: "{{ ansible_host }}"
+    pod_network: "10.244.0.0/16"
+  tasks:
+    - name: initialize the cluster
+      shell: "kubeadm init --apiserver-cert-extra-sans={{ master_external_ip }} --apiserver-advertise-address=0.0.0.0 --control-plane-endpoint={{ master_external_ip }} --pod-network-cidr={{ pod_network }} >> cluster_initialized.txt"
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
+
+    - name: create .kube directory
+      become: yes
+      become_user: appuser
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/appuser/.kube/config
+        remote_src: yes
+        owner: appuser
+
+    - name: install Calico (Pod network)
+      become: yes
+      become_user: appuser
+      shell: kubectl apply -f https://projectcalico.docs.tigera.io/v3.19/manifests/calico.yaml >> pod_network_setup.txt
+      args:
+        chdir: $HOME
+        creates: pod_network_setup.txt
+
+    #- name: install Flannel (Pod network)
+    #  become: yes
+    #  become_user: ubuntu
+    #  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml >> pod_network_setup.txt
+    #  args:
+    #    chdir: $HOME
+    #    creates: pod_network_setup.txt
